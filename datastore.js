@@ -4,7 +4,8 @@
 
 var mongodb = require('mongodb');
 // Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname, details set in .env
-var MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DB_PORT+'/'+process.env.DB;
+//var MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DB_PORT+'/'+process.env.DB;
+var MONGODB_URI = process.env.URI;
 var collection;
 
 // ------------------------------
@@ -41,7 +42,7 @@ function get(key) {
       if (typeof(key) !== "string") {
         reject(new DatastoreKeyNeedToBeStringException(key));
       } else {
-        collection.findOne({"key":key}, function (err, data) {
+        collection.findOne({"short":key}, function (err, data) {
           if (err) {
             reject(new DatastoreUnderlyingException(key, err));
           } else {
@@ -50,7 +51,7 @@ function get(key) {
                 resolve(null);
               }
               else{
-                resolve(JSON.parse(data.value));
+                resolve(data);
               }
             } catch (ex) {
               reject(new DatastoreDataParsingException(data.value, ex));
@@ -93,8 +94,9 @@ function removeMany(keys) {
 function connect() {
   return new Promise(function (resolve, reject) {
     try {
-      mongodb.MongoClient.connect(MONGODB_URI, function(err, db) {
+      mongodb.MongoClient.connect(MONGODB_URI, function(err, client) {
         if(err) reject(err);
+        const db = client.db(process.env.DB);
         collection = db.collection(process.env.COLLECTION);
         resolve(collection);
       });
