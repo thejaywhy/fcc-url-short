@@ -1,7 +1,8 @@
 {
   "name": "jy-fcc-url-short",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "mongodb": "^3.0.1"
   },
   "main": "server.js",
   "scripts": {
