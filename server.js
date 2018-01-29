@@ -1,43 +1,38 @@
 var express = require('express');
 var app = express();
-var MongoClient = require('mongodb').MongoClient;
 
 // setup our datastore
-//var datastore = require("./datastore").sync;
-//datastore.initializeApp(app);
+var datastore = require("./datastore").sync;
+datastore.initializeApp(app);
+var dsConnected=false;
 
-function connect() {
-  //var MONGODB_URI = process.env.SCHEME+'://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+'/'+process.env.DB+'?authSource=admin';
-  var MONGODB_URI = process.env.URI;
-  MongoClient.connect(MONGODB_URI, function(err, client) {
-    if(err) return console.log("ERR: "+err);
-    //const collection = client.db(process.env.DB).collection(process.env.COLLECTION);
-    const db = client.db(process.env.DB);
-    const collection = db.collection(process.env.COLLECTION);
-    // Find some documents
-    collection.find({}).toArray(function(err, docs) {
-      if(err) return console.log("ERR: "+err);
-      console.log("Found the following records");
-      console.log(docs)
-      
-    });
-    
-    // perform actions on the collection object
-    client.close();
-});
-};
+function initializeDatastoreOnProjectCreation() {
+  if(!dsConnected){
+    dsConnected = datastore.connect();
+  }
+}
 
 // root, show welcome page / docs
 app.get("/", function (request, response) {
+  try{
+    initializeDatastoreOnProjectCreation();
+  } catch (err) {
+    console.log("Error: " + err);
+  }
   response.sendFile(__dirname + '/views/index.html');
 });
 
 // Build the only API route
 app.get("/new/:url", function (request, response) {
 
-  console.log(request.params.url);
+  try{
+    initializeDatastoreOnProjectCreation();
+  } catch (err) {
+    console.log("Error: " + err);
+  }  
   
-  connect();
+ 
+  
 
   response.json({
     original_url: request.params.url,
@@ -46,13 +41,21 @@ app.get("/new/:url", function (request, response) {
 });
 
 // Build the only API route
-app.get("/:short", function (request, response) {
-
-  console.log(request.params.url);
+app.get("/:short", function (request, response) {  
+  try{
+    initializeDatastoreOnProjectCreation();
+    
+    var url = datastore.get(request.params.short);
+    if (url) {
+      response.redirect(url.original);
+    } else {
+      throw "Not found";
+    }
+  } catch (err) {
+    console.log("Error caught: " + err);
+    response.status(404).send("Sorry can't find that!")
+  }
   
-  connect();
-
-  response.redirect('https://randomjy.com');
 });
 
 // listen for requests
