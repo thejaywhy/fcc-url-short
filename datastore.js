@@ -4,7 +4,6 @@
 
 var mongodb = require('mongodb');
 // Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname, details set in .env
-//var MONGODB_URI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DB_PORT+'/'+process.env.DB;
 var MONGODB_URI = process.env.URI;
 var collection;
 
@@ -21,6 +20,13 @@ function set(key, value) {
     } else {
       try {
         var serializedValue = JSON.stringify(value);
+        var count = collection.count();
+        // protect the datastore, don't let any new records get created
+        // hacky, yes. 
+        if (count >= 100 ) {
+          reject(new DatastoreUnderlyingException(value, "Max records reached"));
+        }
+          
         collection.updateOne({"key": key}, {$set: {"value": serializedValue}}, {upsert:true}, function (err, res) {
           if (err) {
             reject(new DatastoreUnderlyingException(value, err));
@@ -42,7 +48,7 @@ function get(key) {
       if (typeof(key) !== "string") {
         reject(new DatastoreKeyNeedToBeStringException(key));
       } else {
-        collection.findOne({"short":key}, function (err, data) {
+        collection.findOne({"key":key}, function (err, data) {
           if (err) {
             reject(new DatastoreUnderlyingException(key, err));
           } else {
@@ -51,7 +57,7 @@ function get(key) {
                 resolve(null);
               }
               else{
-                resolve(data);
+                resolve(JSON.parse(data.value));
               }
             } catch (ex) {
               reject(new DatastoreDataParsingException(data.value, ex));

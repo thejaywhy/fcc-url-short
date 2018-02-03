@@ -3,14 +3,17 @@
   "dependencies": {
     "express": "^4.14.0",
     "mongodb": "^3.0.1",
-    "synchronize": "^2.0.0"
+    "synchronize": "^2.0.0",
+    "murmur-hash": "^1.0.0",
+    "body-parser": "^1.18.2",
+    "valid-url": "^1.0.9"
   },
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
-    "node": "4.4.5"
+    "node": "6.12.3"
   },
   "repository": {
     "type": "git",

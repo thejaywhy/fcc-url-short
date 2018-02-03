@@ -22,9 +22,56 @@
       </ul>
     <h3>Example Usage</h3>
       <div class="codeblock">
-        <pre >
-          # navigate to https://jy-fcc-short-url.glitch.me/short/http://google.com in browser
-          {"original_url":"http://google.com,"short_url": "https://jy-fcc-short-url.glitch.me/4578"}
+        <h4>
+          Create via FORM
+        </h4>
+        <pre>
+        curl -d "url=https%3A%2F%2Ffreecodecamp.org" https://jy-fcc-url-short.glitch.me/api/shorten
+        {"original":"https://freecodecamp.org","short":"412557052"}
+        </pre>
+        <h4>
+          Create via JSON
+        </h4>
+        <pre>
+        curl -d '{"url": "https://freecodecamp.org"}' -H "Content-Type: application/json"  https://jy-fcc-url-short.glitch.me/api/shorten
+        {"original":"https://freecodecamp.org","short":"412557052"}
+        </pre>
+        <h4>
+          Get Shortented
+        </h4>
+        <pre>
+        curl -v https://jy-fcc-url-short.glitch.me/412557052
+        HTTP/1.1 302 Found
+        Date: Sat, 03 Feb 2018 18:20:21 GMT
+        Content-Type: text/plain; charset=utf-8
+        Content-Length: 46
+        Connection: keep-alive
+        x-powered-by: Express
+        location: https://freecodecamp.org
+        vary: Accept
+
+        Found. Redirecting to https://freecodecamp.org
+        </pre>
+        <h4>
+          Get Object from API
+        </h4>
+        <pre>
+        curl -H "Content-Type: application/json" https://jy-fcc-url-short.glitch.me/api/412557052
+        {"original":"https://freecodecamp.org","short":"412557052"}%
+        </pre>
+        <h4>
+          Invalid URL sent
+        </h4>
+        <pre>
+        curl -d "url=nopenopenope.dsaf" https://jy-fcc-url-short.glitch.me/api/shorten
+        {"error":"Invalid url"}
+        </pre>
+        <h4>
+          Short link Not found
+        </h4>
+        <pre>
+        curl https://jy-fcc-url-short.glitch.me/apple
+        {"error":"Not found"}
         </pre>
       </div>
     </div>
