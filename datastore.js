@@ -6,6 +6,7 @@ var mongodb = require('mongodb');
 // Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname, details set in .env
 var MONGODB_URI = process.env.URI;
 var collection;
+var MAX_URLS_TO_STORE = 100;
 
 // ------------------------------
 // ASYNCHRONOUS PROMISE-BASED API
@@ -103,6 +104,16 @@ function connect() {
       mongodb.MongoClient.connect(MONGODB_URI, function(err, client) {
         if(err) reject(err);
         const db = client.db(process.env.DB);
+        
+        // Create the collection
+        // It's capped so things don't get out of hand
+        // Aka, we get a circular buffer and MongoDB manages it for us,
+        // for free
+        db.createCollection(
+          process.env.COLLECTION, 
+          { capped: true, max: MAX_URLS_TO_STORE, size: 4096*100 }
+        );
+        
         collection = db.collection(process.env.COLLECTION);
         resolve(collection);
       });
