@@ -8,9 +8,18 @@
     "body-parser": "^1.18.2",
     "valid-url": "^1.0.9"
   },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "mocha": "^5.0.1",
+    "mongoose": "^5.0.7",
+    "sinon": "^4.4.2",
+    "sinon-mongoose": "^2.0.2"
+  },
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha --timeout 10000 --exit"
   },
   "engines": {
     "node": "6.12.3"
