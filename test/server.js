@@ -1,5 +1,5 @@
 //During the test the env variable is set to test
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'unit-test';
 process.env.DB_URI = "mongodb://localhost/testDatabase"
 process.env.DB = "testShort"
 process.env.COLLECTION = "testUrls"
@@ -24,20 +24,6 @@ const sandbox = sinon.sandbox.create();
 
 describe('App', () => {
 
-  before((done) => {
-    const db = mongoose.connection;
-    db.on('error', console.error.bind(console, 'connection error'));
-    db.once('open', function() {
-      console.log('We are connected to test database!');
-      done();
-    });
-  });
-
-  // Share connection for all tests
-  beforeEach((done) => { 
-    mongoose.connection.db.dropDatabase(done);
-  });
-
   describe('When I visit /', () => {
     it('it should return the index view', (done) => {
       chai.request(server)
@@ -53,11 +39,13 @@ describe('App', () => {
 
   describe('When I pass a URL as a parameter', () => {
     it('it should return a shortened URL in a JSON response', (done) => {
-      var expUrl = 'https://freecodecamp.org';
-      var expShort = '412557052';
+      var stub = sinon.stub(UrlShort.prototype, 'save');
+      var expectedResult = {short: "412557052", original:"https://freecodecamp.org"};
+      stub.yields(null, expectedResult);
+
       chai.request(server)
         .post('/api/shorten')
-        .send({url: expUrl})
+        .send({url: expectedResult.original})
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.json;
@@ -66,8 +54,10 @@ describe('App', () => {
           res.body.should.have.property('short');
           res.body.should.not.have.property('error');
 
-          res.body.short.should.equal(expShort);
-          res.body.original.should.equal(expUrl);
+          res.body.short.should.equal(expectedResult.short);
+          res.body.original.should.equal(expectedResult.original);
+
+          stub.restore();
 
           done();
         });
@@ -143,9 +133,7 @@ describe('App', () => {
   //Drop db connect after all tests
   after(function(done){
     sandbox.restore();
-    mongoose.connection.db.dropDatabase(function(){
-      mongoose.connection.close(done);
-    });
+    done();
   });
 
 });
