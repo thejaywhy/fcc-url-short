@@ -24,7 +24,13 @@ const sandbox = sinon.sandbox.create();
 
 describe('App', () => {
 
-  before(() => {
+  before((done) => {
+    const db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'connection error'));
+    db.once('open', function() {
+      console.log('We are connected to test database!');
+      done();
+    });
   });
 
   // Share connection for all tests
@@ -93,7 +99,7 @@ describe('App', () => {
       UrlShortMock.expects('find').yields(null, expectedResult);
 
       chai.request(server)
-        .get('/api/apple')
+        .get('/api/' + expectedResult.short)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.json;
@@ -103,6 +109,10 @@ describe('App', () => {
 
           res.body.original.should.not.be.null;
           res.body.short.should.not.be.null;
+
+          UrlShortMock.verify();
+          UrlShortMock.restore();
+
           done();
         });
     });
@@ -111,14 +121,19 @@ describe('App', () => {
   describe("When I visit the shortened URL", () => {
     it('it should redirect me to the original link', (done) => {
       var UrlShortMock = sinon.mock(UrlShort);
-      var expectedResult = {short: "apple2", original:"https://apple.com"};
+      var expectedResult = {short: "apple", original:"https://apple.com"};
       UrlShortMock.expects('find').yields(null, expectedResult);
 
       chai.request(server)
-        .get('/apple2')
+        .get('/' + expectedResult.short)
+        .redirects(0)
         .end((err, res) => {
           res.should.have.status(302);
-          res.headers.Location.to.equal(expectedResult.original);
+          res.should.redirect;
+          res.should.redirectTo(expectedResult.original);
+
+          UrlShortMock.verify();
+          UrlShortMock.restore();
 
           done();
         });

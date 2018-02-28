@@ -45,7 +45,7 @@ app.post("/api/shorten", function (request, response) {
 });
 
 // Build the Get Object API
-app.get("/api/:short", function (request, response) {  
+app.get("/api/:short", function (request, response) {
   UrlShort.find({ short: request.params.short }, function (err, url) {
     if (err) return response.status(404).json({error: err});
 
@@ -59,7 +59,7 @@ app.get("/api/:short", function (request, response) {
 });
 
 // Build the Get Route Redirect
-app.get("/:short", function (request, response) {  
+app.get("/:short", function (request, response) {
   UrlShort.find({ short: request.params.short }, function (err, url) {
     if (err) return response.status(404).json({error: err});
 
