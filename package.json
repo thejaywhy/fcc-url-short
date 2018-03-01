@@ -6,13 +6,13 @@
     "synchronize": "^2.0.0",
     "murmur-hash": "^1.0.0",
     "body-parser": "^1.18.2",
-    "valid-url": "^1.0.9"
+    "valid-url": "^1.0.9",
+    "mongoose": "^5.0.7"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "mocha": "^5.0.1",
-    "mongoose": "^5.0.7",
     "sinon": "^4.4.2"
   },
   "main": "server.js",
