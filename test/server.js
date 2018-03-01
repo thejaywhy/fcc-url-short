@@ -8,7 +8,6 @@ var server = require('../server');
 
 var sinon = require('sinon');
 var mongoose = require('mongoose');
-require ('sinon-mongoose');
 
 var chai = require('chai');
 var chaiHttp = require('chai-http');
